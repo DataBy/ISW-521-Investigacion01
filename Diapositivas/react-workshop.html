@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Workshop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --blue:#0071e3;--blue-light:#e8f0fe;--gray-50:#f5f5f7;--gray-100:#e8e8ed;
+    --gray-200:#d2d2d7;--gray-400:#86868b;--gray-600:#515154;--gray-900:#1d1d1f;
+    --white:#fff;--clay-shadow:0 20px 60px rgba(0,0,0,.12),0 8px 24px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.06);
+    --clay-inner:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(0,0,0,.04);
+    --radius-sm:10px;--radius-md:16px;--radius-lg:24px;--radius-xl:32px;
+    --font:-apple-system,'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+    --slide-w:1280px;--slide-h:720px;
+  }
+  html,body{width:100%;height:100%;overflow:hidden;background:#1c1c1e;font-family:var(--font)}
+
+  /* ─── MAC DESKTOP ─── */
+  #desktop{
+    position:fixed;inset:0;z-index:10;
+    background:radial-gradient(ellipse at 30% 40%,#2a5298 0%,#1a1a2e 50%,#0f0f1a 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1);
+  }
+  #desktop.closing{opacity:0;transform:scale(1.04) translateY(-20px);pointer-events:none}
+
+  /* wallpaper stars */
+  #desktop::before{
+    content:'';position:absolute;inset:0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,.6) 0%,transparent 100%),
+      radial-gradient(1px 1px at 80% 10%,rgba(255,255,255,.4) 0%,transparent 100%),
+      radial-gradient(1.5px 1.5px at 60% 70%,rgba(255,255,255,.5) 0%,transparent 100%),
+      radial-gradient(1px 1px at 40% 80%,rgba(255,255,255,.3) 0%,transparent 100%),
+      radial-gradient(1px 1px at 90% 50%,rgba(255,255,255,.4) 0%,transparent 100%),
+      radial-gradient(1px 1px at 10% 60%,rgba(255,255,255,.5) 0%,transparent 100%),
+      radial-gradient(2px 2px at 50% 20%,rgba(255,255,255,.3) 0%,transparent 100%);
+    pointer-events:none;
+  }
+
+  /* menubar */
+  #menubar{
+    position:fixed;top:0;left:0;right:0;height:28px;z-index:20;
+    background:rgba(30,30,30,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    display:flex;align-items:center;padding:0 16px;gap:20px;
+  }
+  .menu-apple{font-size:16px;color:#fff;cursor:default}
+  .menu-item{font-size:13px;color:rgba(255,255,255,.88);cursor:default;font-weight:400}
+  .menu-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .menu-right span{font-size:13px;color:rgba(255,255,255,.88)}
+
+  /* desktop icon */
+  .desktop-icon{
+    display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+    padding:12px;border-radius:12px;transition:background .15s;user-select:none;
+  }
+  .desktop-icon:hover{background:rgba(255,255,255,.12)}
+  .desktop-icon:active{background:rgba(255,255,255,.2);transform:scale(.96)}
+  .icon-img{
+    width:80px;height:80px;border-radius:20px;
+    background:linear-gradient(145deg,#4f8ef7 0%,#1a5fd4 60%,#0d3fa0 100%);
+    box-shadow:0 8px 24px rgba(26,95,212,.5),0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.3);
+    display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden;
+  }
+  .icon-img::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:50%;
+    background:linear-gradient(rgba(255,255,255,.25),transparent);border-radius:inherit;
+  }
+  .icon-label{font-size:12px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8);font-weight:500;text-align:center}
+
+  /* dock */
+  #dock{
+    position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+    background:rgba(255,255,255,.18);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+    border:1px solid rgba(255,255,255,.25);border-radius:20px;
+    padding:8px 16px;display:flex;gap:8px;align-items:flex-end;
+    box-shadow:0 8px 32px rgba(0,0,0,.4);
+  }
+  .dock-icon{
+    width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    font-size:28px;cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+    background:rgba(255,255,255,.15);
+  }
+  .dock-icon:hover{transform:scale(1.4) translateY(-10px)}
+
+  /* ─── PRESENTATION WINDOW ─── */
+  #pres-wrapper{
+    position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    pointer-events:none;
+  }
+  #pres-window{
+    width:var(--slide-w);max-width:98vw;
+    aspect-ratio:16/9;position:relative;
+    border-radius:var(--radius-lg);overflow:hidden;
+    box-shadow:0 40px 120px rgba(0,0,0,.5),0 8px 32px rgba(0,0,0,.3);
+    transform:scale(.3) translateY(100%);opacity:0;
+    transition:transform .65s cubic-bezier(.34,1.2,.64,1),opacity .4s ease;
+    pointer-events:none;
+  }
+  #pres-window.open{
+    transform:scale(1) translateY(0);opacity:1;pointer-events:all;
+  }
+
+  /* titlebar */
+  .win-bar{
+    height:40px;background:#2a2a2c;display:flex;align-items:center;padding:0 14px;gap:8px;
+    border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;position:relative;
+  }
+  .traffic{width:14px;height:14px;border-radius:50%;cursor:pointer;flex-shrink:0;transition:filter .15s}
+  .traffic.red{background:#ff5f57}
+  .traffic.yellow{background:#febc2e}
+  .traffic.green{background:#28c840}
+  .traffic:hover{filter:brightness(1.2)}
+  .win-title{position:absolute;left:50%;transform:translateX(-50%);font-size:13px;color:rgba(255,255,255,.6);font-weight:500}
+
+  /* slide area */
+  #slide-area{
+    flex:1;overflow:hidden;position:relative;background:#fff;
+    height:calc(100% - 40px);
+  }
+
+  /* ─── SLIDES ─── */
+  .slide{
+    position:absolute;inset:0;display:flex;flex-direction:column;padding:60px 72px;
+    opacity:0;pointer-events:none;
+    transition:opacity .35s ease,transform .35s cubic-bezier(.4,0,.2,1);
+    transform:translateX(60px);
+    background:#fff;overflow:hidden;
+  }
+  .slide.active{opacity:1;pointer-events:all;transform:translateX(0)}
+  .slide.exit-left{opacity:0;transform:translateX(-60px)}
+
+  /* slide backgrounds */
+  .slide-hero{background:linear-gradient(135deg,#f5f5f7 0%,#e8f0fe 100%)}
+  .slide-dark{background:#1d1d1f;color:#f5f5f7}
+  .slide-blue{background:linear-gradient(135deg,#e8f0fe 0%,#d2e3fc 100%)}
+  .slide-warm{background:linear-gradient(135deg,#fff9f0 0%,#fef3e2 100%)}
+  .slide-workshop{background:linear-gradient(135deg,#0d1117 0%,#161b22 100%)}
+
+  /* typography */
+  .eyebrow{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
+  .slide-dark .eyebrow{color:#4f8ef7}
+  .slide-workshop .eyebrow{color:#58a6ff}
+  .h1{font-size:64px;font-weight:700;line-height:1.0;letter-spacing:-.02em;color:var(--gray-900)}
+  .h2{font-size:48px;font-weight:700;line-height:1.05;letter-spacing:-.02em;color:var(--gray-900)}
+  .h3{font-size:32px;font-weight:600;line-height:1.1;letter-spacing:-.01em;color:var(--gray-900)}
+  .slide-dark .h1,.slide-dark .h2,.slide-dark .h3{color:#f5f5f7}
+  .slide-workshop .h1,.slide-workshop .h2,.slide-workshop .h3{color:#e6edf3}
+  .body{font-size:17px;line-height:1.6;color:var(--gray-600);max-width:680px}
+  .body-sm{font-size:15px;line-height:1.55;color:var(--gray-600)}
+  .slide-dark .body,.slide-dark .body-sm{color:rgba(245,245,247,.7)}
+  .slide-workshop .body,.slide-workshop .body-sm{color:#8b949e}
+  .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+  .mt24{margin-top:24px}.mt32{margin-top:32px}.mt40{margin-top:40px}.mt48{margin-top:48px}
+
+  /* clay cards */
+  .clay-card{
+    background:#fff;border-radius:var(--radius-lg);padding:28px 32px;
+    box-shadow:var(--clay-shadow),var(--clay-inner);
+    border:1px solid rgba(0,0,0,.04);
+  }
+  .clay-card-sm{
+    background:#fff;border-radius:var(--radius-md);padding:20px 24px;
+    box-shadow:0 8px 24px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.05),inset 0 1px 0 rgba(255,255,255,.9);
+    border:1px solid rgba(0,0,0,.04);
+  }
+  .clay-card-dark{
+    background:#2c2c2e;border-radius:var(--radius-lg);padding:28px 32px;
+    box-shadow:0 20px 60px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.06);
+  }
+
+  /* pill badge */
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:5px 14px;border-radius:100px;font-size:13px;font-weight:600;
+  }
+  .badge-blue{background:#e8f0fe;color:#1a56db}
+  .badge-green{background:#e6f4ea;color:#137333}
+  .badge-orange{background:#fef3e2;color:#c5680d}
+  .badge-dark{background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)}
+  .badge-purple{background:#f0ebff;color:#6741d9}
+
+  /* grid helpers */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .flex-row{display:flex;align-items:flex-start;gap:20px}
+  .flex-col{display:flex;flex-direction:column;gap:12px}
+
+  /* timeline */
+  .timeline{display:flex;flex-direction:column;gap:0}
+  .tl-item{display:flex;gap:16px;padding-bottom:20px;position:relative}
+  .tl-item:not(:last-child)::before{
+    content:'';position:absolute;left:15px;top:32px;bottom:0;
+    width:2px;background:var(--gray-100);
+  }
+  .tl-dot{
+    width:32px;height:32px;border-radius:50%;flex-shrink:0;
+    background:#e8f0fe;display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:700;color:var(--blue);margin-top:2px;
+    box-shadow:0 2px 8px rgba(0,113,227,.2);
+  }
+  .tl-content{}
+  .tl-year{font-size:11px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.06em}
+  .tl-label{font-size:15px;font-weight:600;color:var(--gray-900);margin-top:2px}
+  .tl-desc{font-size:13px;color:var(--gray-600);margin-top:2px;line-height:1.5}
+
+  /* terminal */
+  .terminal{
+    background:#1a1a1a;border-radius:12px;overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);
+  }
+  .term-bar{
+    background:#3a3a3c;padding:10px 14px;display:flex;align-items:center;gap:8px;
+    border-bottom:1px solid rgba(255,255,255,.05);
+  }
+  .term-btn{width:13px;height:13px;border-radius:50%}
+  .t-red{background:#ff5f57}
+  .t-yellow{background:#febc2e}
+  .t-green{background:#28c840}
+  .term-title{margin-left:auto;margin-right:auto;font-size:12px;color:rgba(255,255,255,.4);font-family:var(--mono);transform:translateX(-20px)}
+  .term-body{padding:18px 20px;font-family:var(--mono);font-size:13px;line-height:1.7}
+  .t-comment{color:#6a9955}
+  .t-keyword{color:#569cd6}
+  .t-string{color:#ce9178}
+  .t-fn{color:#dcdcaa}
+  .t-jsx{color:#4ec9b0}
+  .t-prop{color:#9cdcfe}
+  .t-white{color:#d4d4d4}
+  .t-gray{color:#858585}
+  .t-prompt{color:#28c840}
+  .t-cmd{color:#fff}
+  .term-cursor{display:inline-block;width:8px;height:14px;background:#4ec9b0;vertical-align:middle;animation:blink 1s step-end infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+  /* react logo spin */
+  .react-atom{
+    width:120px;height:120px;position:relative;
+    animation:spin-slow 12s linear infinite;
+  }
+  @keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+  /* icon circle */
+  .icon-circle{
+    width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:24px;flex-shrink:0;
+  }
+  .ic-blue{background:#e8f0fe}
+  .ic-green{background:#e6f4ea}
+  .ic-orange{background:#fef3e2}
+  .ic-purple{background:#f0ebff}
+  .ic-pink{background:#fce4ec}
+
+  /* number accent */
+  .num-accent{font-size:80px;font-weight:700;letter-spacing:-.04em;
+    background:linear-gradient(135deg,var(--blue),#5ba4f5);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    line-height:1;}
+
+  /* slide counter */
+  #counter{
+    position:fixed;bottom:16px;right:24px;z-index:100;
+    font-size:12px;color:rgba(255,255,255,.4);font-family:var(--mono);pointer-events:none;
+  }
+
+  /* nav arrows */
+  #nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:50;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 24px 24px;pointer-events:none;
+  }
+  .nav-btn{
+    width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(255,255,255,.15);backdrop-filter:blur(10px);
+    color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;
+    transition:background .15s,transform .15s;pointer-events:all;
+    box-shadow:0 4px 16px rgba(0,0,0,.2);
+  }
+  .nav-btn:hover{background:rgba(255,255,255,.25);transform:scale(1.05)}
+  .nav-btn:active{transform:scale(.95)}
+  .nav-btn:disabled{opacity:.3;cursor:default;transform:none}
+
+  /* progress dots */
+  #dots{display:flex;gap:6px;align-items:center}
+  .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s ease;cursor:pointer;pointer-events:all}
+  .dot.active{background:#fff;transform:scale(1.4)}
+
+  /* pill list */
+  .pill-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .pill{padding:6px 16px;border-radius:100px;font-size:14px;font-weight:500;background:var(--gray-50);color:var(--gray-600);border:1px solid var(--gray-100)}
+
+  /* highlight box */
+  .hl-box{
+    background:#e8f0fe;border-left:4px solid var(--blue);border-radius:0 8px 8px 0;
+    padding:16px 20px;margin-top:20px;
+  }
+  .hl-box p{font-size:15px;color:#1a3a6b;line-height:1.55}
+
+  /* code inline */
+  code{
+    font-family:var(--mono);font-size:.88em;
+    background:#f5f5f7;padding:2px 6px;border-radius:5px;color:#d63384;
+  }
+  .slide-dark code{background:rgba(255,255,255,.1);color:#7ee787}
+  .slide-workshop code{background:rgba(88,166,255,.1);color:#79c0ff}
+
+  /* workshop task card */
+  .task-card{
+    background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);
+    border-radius:12px;padding:16px 20px;margin-bottom:12px;
+  }
+  .task-num{font-size:11px;font-weight:700;color:#58a6ff;text-transform:uppercase;letter-spacing:.06em}
+  .task-label{font-size:16px;font-weight:600;color:#e6edf3;margin-top:4px}
+  .task-desc{font-size:14px;color:#8b949e;margin-top:6px;line-height:1.5}
+
+  /* slide 1 big logo area */
+  .hero-react-logo{
+    position:absolute;right:80px;top:50%;transform:translateY(-50%);
+    opacity:.06;
+    width:360px;height:360px;
+    pointer-events:none;
+  }
+
+  /* comparison */
+  .vs-row{display:flex;align-items:center;gap:0;margin-bottom:10px}
+  .vs-label{font-size:14px;font-weight:600;width:180px;color:var(--gray-600)}
+  .vs-bar-wrap{flex:1;background:var(--gray-100);border-radius:100px;height:10px;overflow:hidden;margin:0 12px}
+  .vs-bar{height:100%;border-radius:100px;background:var(--blue)}
+  .vs-val{font-size:13px;font-weight:600;color:var(--gray-900);width:36px;text-align:right}
+
+  /* do dont */
+  .do-block{background:#e6f4ea;border-radius:10px;padding:14px 16px;border-left:4px solid #137333}
+  .dont-block{background:#fce8e6;border-radius:10px;padding:14px 16px;border-left:4px solid #c5221f}
+  .do-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#137333;margin-bottom:6px}
+  .dont-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#c5221f;margin-bottom:6px}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── MENUBAR ─── -->
+<div id="menubar">
+  <span class="menu-apple">&#63743;</span>
+  <span class="menu-item" style="font-weight:600">Finder</span>
+  <span class="menu-item">Archivo</span>
+  <span class="menu-item">Editar</span>
+  <span class="menu-item">Vista</span>
+  <span class="menu-item">Ir</span>
+  <span class="menu-item">Ventana</span>
+  <div class="menu-right">
+    <span>🔋</span>
+    <span>📶</span>
+    <span id="clock"></span>
+  </div>
+</div>
+
+<!-- ─── DESKTOP ─── -->
+<div id="desktop">
+  <!-- desktop icon -->
+  <div style="position:absolute;top:80px;left:80px">
+    <div class="desktop-icon" onclick="openPresentation()">
+      <div class="icon-img">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="8" fill="rgba(255,255,255,.9)"/>
+          <ellipse cx="24" cy="24" rx="22" ry="8.5" stroke="rgba(255,255,255,.85)" stroke-width="2.5" fill="none"/>
+          <ellipse cx="24" cy="24" rx="22" ry="8.5" stroke="rgba(255,255,255,.85)" stroke-width="2.5" fill="none" transform="rotate(60 24 24)"/>
+          <ellipse cx="24" cy="24" rx="22" ry="8.5" stroke="rgba(255,255,255,.85)" stroke-width="2.5" fill="none" transform="rotate(120 24 24)"/>
+        </svg>
+      </div>
+      <span class="icon-label">Presentación<br>React.app</span>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:rgba(255,255,255,.5);font-size:14px;margin-top:160px">
+    <p>Doble clic para abrir</p>
+  </div>
+
+  <!-- DOCK -->
+  <div id="dock">
+    <div class="dock-icon" title="Finder">🗂️</div>
+    <div class="dock-icon" title="Terminal">⬛</div>
+    <div class="dock-icon" title="Safari">🧭</div>
+    <div class="dock-icon" onclick="openPresentation()" title="React Workshop">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="4.5" fill="rgba(255,255,255,.9)"/>
+        <ellipse cx="15" cy="15" rx="13" ry="5" stroke="rgba(255,255,255,.8)" stroke-width="1.8" fill="none"/>
+        <ellipse cx="15" cy="15" rx="13" ry="5" stroke="rgba(255,255,255,.8)" stroke-width="1.8" fill="none" transform="rotate(60 15 15)"/>
+        <ellipse cx="15" cy="15" rx="13" ry="5" stroke="rgba(255,255,255,.8)" stroke-width="1.8" fill="none" transform="rotate(120 15 15)"/>
+      </svg>
+    </div>
+    <div class="dock-icon" title="Código">💻</div>
+    <div class="dock-icon" title="Configuración">⚙️</div>
+  </div>
+</div>
+
+<!-- ─── PRESENTATION WINDOW ─── -->
+<div id="pres-wrapper">
+  <div id="pres-window">
+    <div class="win-bar">
+      <div class="traffic red" onclick="closePresentation()" title="Cerrar"></div>
+      <div class="traffic yellow"></div>
+      <div class="traffic green"></div>
+      <span class="win-title">React Workshop — Byron</span>
+    </div>
+    <div id="slide-area">
+
+      <!-- ─ SLIDE 0: PORTADA ─ -->
+      <div class="slide slide-hero active" id="s0">
+        <svg class="hero-react-logo" viewBox="0 0 200 200" fill="none">
+          <circle cx="100" cy="100" r="30" fill="#61dafb"/>
+          <ellipse cx="100" cy="100" rx="95" ry="37" stroke="#61dafb" stroke-width="6" fill="none"/>
+          <ellipse cx="100" cy="100" rx="95" ry="37" stroke="#61dafb" stroke-width="6" fill="none" transform="rotate(60 100 100)"/>
+          <ellipse cx="100" cy="100" rx="95" ry="37" stroke="#61dafb" stroke-width="6" fill="none" transform="rotate(120 100 100)"/>
+        </svg>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;max-width:640px">
+          <div class="eyebrow">Byron · Workshop 2025</div>
+          <h1 class="h1" style="font-size:76px;margin-top:8px">React</h1>
+          <h2 class="h2" style="font-size:40px;font-weight:300;color:var(--gray-400);margin-top:4px">De cero a componente.</h2>
+          <p class="body mt24">Una guía práctica: qué es, por qué existe, cómo pensar en React y cómo construir tu primer componente hoy.</p>
+          <div class="pill-list mt32">
+            <span class="pill">⚛️ React 19</span>
+            <span class="pill">📚 Biblioteca de UI</span>
+            <span class="pill">🧩 Componentes</span>
+            <span class="pill">🔄 Estado</span>
+            <span class="pill">🛠️ Taller práctico</span>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:40px;right:72px;font-size:13px;color:var(--gray-400)">
+          Presiona → para avanzar
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 1: HISTORIA ─ -->
+      <div class="slide" id="s1">
+        <div class="eyebrow">Contexto</div>
+        <h2 class="h2">¿Cómo nació React?</h2>
+        <div class="flex-row mt32" style="gap:40px;align-items:flex-start">
+          <div style="flex:1">
+            <div class="timeline">
+              <div class="tl-item">
+                <div class="tl-dot">1</div>
+                <div class="tl-content">
+                  <div class="tl-year">2011</div>
+                  <div class="tl-label">Problema real en Facebook</div>
+                  <div class="tl-desc">El chat y el contador de notificaciones se desincronizaban. La UI era un caos difícil de mantener.</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot">2</div>
+                <div class="tl-content">
+                  <div class="tl-year">2011–2013</div>
+                  <div class="tl-label">Jordan Walke inventa React</div>
+                  <div class="tl-desc">Ingeniero de Facebook. Inspirado en XHP (PHP). Primera versión interna: "FaxJS".</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot">3</div>
+                <div class="tl-content">
+                  <div class="tl-year">Mayo 2013</div>
+                  <div class="tl-label">Open Source en JSConf US</div>
+                  <div class="tl-desc">La comunidad lo recibió con escepticismo. "¿JSX? ¿HTML en JavaScript?" La reacción fue mixta.</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot">4</div>
+                <div class="tl-content">
+                  <div class="tl-year">2015–Hoy</div>
+                  <div class="tl-label">Domina el ecosistema</div>
+                  <div class="tl-desc">React Native (2015), Hooks (2019), Concurrent Mode (2022), Server Components (2023+).</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:14px">
+            <div class="clay-card-sm" style="background:linear-gradient(135deg,#e8f0fe,#d2e3fc)">
+              <div style="font-size:13px;font-weight:600;color:var(--blue);margin-bottom:6px">💡 El insight clave</div>
+              <p style="font-size:15px;color:#1a3a6b;line-height:1.55">En vez de decirle al DOM <em>qué cambiar</em>, describe <em>cómo debería verse</em> la UI en cada momento. React se encarga del resto.</p>
+            </div>
+            <div class="clay-card-sm">
+              <div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px">Adopción actual</div>
+              <div class="vs-row"><span class="vs-label">React</span><div class="vs-bar-wrap"><div class="vs-bar" style="width:87%"></div></div><span class="vs-val">87%</span></div>
+              <div class="vs-row"><span class="vs-label">Vue</span><div class="vs-bar-wrap"><div class="vs-bar" style="width:51%;background:#42b883"></div></div><span class="vs-val">51%</span></div>
+              <div class="vs-row"><span class="vs-label">Angular</span><div class="vs-bar-wrap"><div class="vs-bar" style="width:43%;background:#dd1b16"></div></div><span class="vs-val">43%</span></div>
+              <p style="font-size:11px;color:var(--gray-400);margin-top:8px">State of JS 2024 · % de uso</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 2: QUÉ ES REACT ─ -->
+      <div class="slide slide-dark" id="s2">
+        <div class="eyebrow">Definición</div>
+        <h2 class="h2">¿Qué es React?</h2>
+        <div class="grid2 mt32" style="gap:24px">
+          <div class="clay-card-dark">
+            <div style="font-size:32px;margin-bottom:12px">⚛️</div>
+            <div style="font-size:18px;font-weight:600;color:#f5f5f7;margin-bottom:8px">Una <em style="color:#61dafb;font-style:normal">biblioteca</em> de UI</div>
+            <p class="body-sm">No es un framework completo. React solo se encarga de <strong style="color:#61dafb">renderizar la interfaz</strong>. Es una <strong style="color:#61dafb">biblioteca</strong> — para routing, datos, etc., eliges tus herramientas.</p>
+          </div>
+          <div class="clay-card-dark">
+            <div style="font-size:32px;margin-bottom:12px">🧩</div>
+            <div style="font-size:18px;font-weight:600;color:#f5f5f7;margin-bottom:8px">Basada en componentes</div>
+            <p class="body-sm">Divides tu UI en piezas pequeñas y reutilizables llamadas <strong style="color:#61dafb">componentes</strong>. Como LEGO, las ensamblas para construir cualquier UI.</p>
+          </div>
+          <div class="clay-card-dark">
+            <div style="font-size:32px;margin-bottom:12px">🔄</div>
+            <div style="font-size:18px;font-weight:600;color:#f5f5f7;margin-bottom:8px">Reactivo al estado</div>
+            <p class="body-sm">Cuando los datos cambian, React <strong style="color:#61dafb">actualiza automáticamente</strong> solo las partes de la UI que lo necesitan. Tú no tocas el DOM.</p>
+          </div>
+          <div class="clay-card-dark">
+            <div style="font-size:32px;margin-bottom:12px">📦</div>
+            <div style="font-size:18px;font-weight:600;color:#f5f5f7;margin-bottom:8px">Virtual DOM</div>
+            <p class="body-sm">Mantiene una copia en memoria del DOM. Compara cambios y actualiza solo lo necesario. Más eficiente que manipular el DOM real directamente.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 3: PARA QUÉ SE USA ─ -->
+      <div class="slide slide-blue" id="s3">
+        <div class="eyebrow">Casos de uso</div>
+        <h2 class="h2">¿Para qué se usa?</h2>
+        <div class="grid3 mt32" style="gap:16px">
+          <div class="clay-card" style="background:#fff">
+            <div style="font-size:28px;margin-bottom:10px">🖥️</div>
+            <div style="font-size:16px;font-weight:600;color:var(--gray-900);margin-bottom:6px">SPAs</div>
+            <p class="body-sm">Aplicaciones de una sola página. Gmail, Facebook, dashboards. No recarga el navegador.</p>
+            <div style="margin-top:12px"><span class="badge badge-blue">Next.js</span></div>
+          </div>
+          <div class="clay-card" style="background:#fff">
+            <div style="font-size:28px;margin-bottom:10px">📱</div>
+            <div style="font-size:16px;font-weight:600;color:var(--gray-900);margin-bottom:6px">Apps móviles</div>
+            <p class="body-sm">Con React Native usas los mismos conceptos para iOS y Android nativos.</p>
+            <div style="margin-top:12px"><span class="badge badge-purple">React Native</span></div>
+          </div>
+          <div class="clay-card" style="background:#fff">
+            <div style="font-size:28px;margin-bottom:10px">🌐</div>
+            <div style="font-size:16px;font-weight:600;color:var(--gray-900);margin-bottom:6px">Sitios con SSR</div>
+            <p class="body-sm">Renderizado en el servidor para mejor SEO y performance. El estándar moderno.</p>
+            <div style="margin-top:12px"><span class="badge badge-green">Server Components</span></div>
+          </div>
+          <div class="clay-card" style="background:#fff">
+            <div style="font-size:28px;margin-bottom:10px">🎮</div>
+            <div style="font-size:16px;font-weight:600;color:var(--gray-900);margin-bottom:6px">UI interactivas</div>
+            <p class="body-sm">Formularios complejos, dashboards, editores, apps de tiempo real con WebSockets.</p>
+          </div>
+          <div class="clay-card" style="background:#fff">
+            <div style="font-size:28px;margin-bottom:10px">🛒</div>
+            <div style="font-size:16px;font-weight:600;color:var(--gray-900);margin-bottom:6px">E-commerce</div>
+            <p class="body-sm">Shopify, grandes tiendas online. Necesitan performance y experiencia fluida.</p>
+          </div>
+          <div class="clay-card" style="background:#fff">
+            <div style="font-size:28px;margin-bottom:10px">🤖</div>
+            <div style="font-size:16px;font-weight:600;color:var(--gray-900);margin-bottom:6px">AI interfaces</div>
+            <p class="body-sm">Claude, ChatGPT, Perplexity... Las UIs de IA más conocidas están en React.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 4: JSX ─ -->
+      <div class="slide" id="s4">
+        <div class="eyebrow">Conceptos clave · 1/4</div>
+        <h2 class="h2">JSX — HTML con superpoderes</h2>
+        <div class="flex-row mt28" style="gap:32px;align-items:flex-start">
+          <div style="flex:1">
+            <p class="body" style="font-size:15px">JSX es una extensión de JavaScript que te permite escribir algo que <em>parece</em> HTML dentro de tu código JS. No es HTML real: se compila a llamadas de <code>React.createElement()</code>.</p>
+            <div class="hl-box">
+              <p><strong>Regla clave:</strong> JSX siempre debe retornar un solo elemento raíz. Usa <code>&lt;div&gt;</code> o el shorthand <code>&lt;&gt;</code> para agrupar.</p>
+            </div>
+            <div style="margin-top:20px">
+              <div class="grid2" style="gap:12px">
+                <div class="do-block">
+                  <div class="do-label">✓ Correcto</div>
+                  <div style="font-family:var(--mono);font-size:12px;color:#0d4a1c;line-height:1.6"><span style="color:#137333">return</span> (<br>&nbsp;&lt;<span style="color:#1a6e3c">div</span>&gt;<br>&nbsp;&nbsp;&lt;<span style="color:#1a6e3c">h1</span>&gt;Hola&lt;/<span style="color:#1a6e3c">h1</span>&gt;<br>&nbsp;&nbsp;&lt;<span style="color:#1a6e3c">p</span>&gt;Mundo&lt;/<span style="color:#1a6e3c">p</span>&gt;<br>&nbsp;&lt;/<span style="color:#1a6e3c">div</span>&gt;<br>)</div>
+                </div>
+                <div class="dont-block">
+                  <div class="dont-label">✗ Error</div>
+                  <div style="font-family:var(--mono);font-size:12px;color:#6a0c0c;line-height:1.6"><span style="color:#c5221f">return</span> (<br>&nbsp;&lt;<span style="color:#a01">h1</span>&gt;Hola&lt;/<span style="color:#a01">h1</span>&gt;<br>&nbsp;&lt;<span style="color:#a01">p</span>&gt;Mundo&lt;/<span style="color:#a01">p</span>&gt;<br>)<br><br></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div class="terminal">
+              <div class="term-bar">
+                <div class="term-btn t-red"></div>
+                <div class="term-btn t-yellow"></div>
+                <div class="term-btn t-green"></div>
+                <span class="term-title">jsx-ejemplo.jsx</span>
+              </div>
+              <div class="term-body">
+                <div><span class="t-comment">// JavaScript + HTML = JSX</span></div>
+                <div class="mt8"><span class="t-keyword">function</span> <span class="t-fn">Saludo</span>() {</div>
+                <div>&nbsp;&nbsp;<span class="t-keyword">const</span> nombre = <span class="t-string">"Byron"</span>;</div>
+                <div class="mt8">&nbsp;&nbsp;<span class="t-keyword">return</span> (</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;div</span> <span class="t-prop">className</span>=<span class="t-string">"card"</span><span class="t-jsx">&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;h1&gt;</span>Hola, {nombre}<span class="t-jsx">&lt;/h1&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;p&gt;</span>Bienvenido al taller<span class="t-jsx">&lt;/p&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;/div&gt;</span></div>
+                <div>&nbsp;&nbsp;);</div>
+                <div>}</div>
+                <div class="mt8"><span class="t-comment">// {} = JavaScript dentro de JSX</span></div>
+                <div><span class="t-comment">// className en vez de class</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 5: COMPONENTES ─ -->
+      <div class="slide slide-warm" id="s5">
+        <div class="eyebrow">Conceptos clave · 2/4</div>
+        <h2 class="h2">Componentes & Props</h2>
+        <div class="flex-row mt24" style="gap:32px;align-items:flex-start">
+          <div style="flex:1.1">
+            <div class="terminal">
+              <div class="term-bar">
+                <div class="term-btn t-red"></div>
+                <div class="term-btn t-yellow"></div>
+                <div class="term-btn t-green"></div>
+                <span class="term-title">Tarjeta.jsx</span>
+              </div>
+              <div class="term-body">
+                <div><span class="t-comment">// Componente = función que retorna JSX</span></div>
+                <div class="mt8"><span class="t-keyword">function</span> <span class="t-fn">Tarjeta</span>({ <span class="t-prop">titulo</span>, <span class="t-prop">descripcion</span>, <span class="t-prop">icono</span> }) {</div>
+                <div>&nbsp;&nbsp;<span class="t-keyword">return</span> (</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;div</span> <span class="t-prop">className</span>=<span class="t-string">"tarjeta"</span><span class="t-jsx">&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;span&gt;</span>{icono}<span class="t-jsx">&lt;/span&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;h2&gt;</span>{titulo}<span class="t-jsx">&lt;/h2&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;p&gt;</span>{descripcion}<span class="t-jsx">&lt;/p&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;/div&gt;</span></div>
+                <div>&nbsp;&nbsp;);</div>
+                <div>}</div>
+                <div class="mt12"><span class="t-comment">// Usarlo — los props son como atributos HTML</span></div>
+                <div><span class="t-jsx">&lt;Tarjeta</span></div>
+                <div>&nbsp;&nbsp;<span class="t-prop">titulo</span>=<span class="t-string">"React"</span></div>
+                <div>&nbsp;&nbsp;<span class="t-prop">icono</span>=<span class="t-string">"⚛️"</span></div>
+                <div>&nbsp;&nbsp;<span class="t-prop">descripcion</span>=<span class="t-string">"Una biblioteca de UI"</span></div>
+                <div><span class="t-jsx">/&gt;</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:14px">
+            <div class="clay-card-sm">
+              <div style="font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:8px">Reglas de componentes</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;gap:10px;align-items:flex-start">
+                  <span style="color:var(--blue);font-weight:700;flex-shrink:0">→</span>
+                  <p class="body-sm"><strong>Nombre con mayúscula.</strong> <code>&lt;Tarjeta&gt;</code> no <code>&lt;tarjeta&gt;</code></p>
+                </div>
+                <div style="display:flex;gap:10px;align-items:flex-start">
+                  <span style="color:var(--blue);font-weight:700;flex-shrink:0">→</span>
+                  <p class="body-sm"><strong>Los props son de solo lectura.</strong> No los mutés dentro del componente.</p>
+                </div>
+                <div style="display:flex;gap:10px;align-items:flex-start">
+                  <span style="color:var(--blue);font-weight:700;flex-shrink:0">→</span>
+                  <p class="body-sm"><strong>Un componente, una responsabilidad.</strong> Si hace demasiado, sepáralo.</p>
+                </div>
+                <div style="display:flex;gap:10px;align-items:flex-start">
+                  <span style="color:var(--blue);font-weight:700;flex-shrink:0">→</span>
+                  <p class="body-sm"><strong>Reutilizable por diseño.</strong> Pasa datos distintos via props para distintos usos.</p>
+                </div>
+              </div>
+            </div>
+            <div class="clay-card-sm" style="background:linear-gradient(135deg,#fff9f0,#fef3e2)">
+              <div style="font-size:13px;font-weight:600;color:#c5680d;margin-bottom:6px">💡 Piénsalo así</div>
+              <p class="body-sm" style="color:#7a4500">Un componente es como una función: recibe datos (props), hace algo, y retorna UI. Puro, predecible, reutilizable.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 6: STATE & HOOKS ─ -->
+      <div class="slide" id="s6">
+        <div class="eyebrow">Conceptos clave · 3/4</div>
+        <h2 class="h2">Estado & Hooks</h2>
+        <div class="flex-row mt24" style="gap:32px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:16px">
+            <div class="clay-card-sm" style="border-left:4px solid var(--blue);border-radius:4px 12px 12px 4px">
+              <div style="font-size:16px;font-weight:600;color:var(--gray-900);margin-bottom:6px">¿Qué es el estado?</div>
+              <p class="body-sm">La <strong>memoria</strong> de un componente. Datos que cambian en el tiempo y que cuando cambian, React vuelve a renderizar la UI automáticamente.</p>
+            </div>
+            <div class="clay-card-sm">
+              <div style="font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:10px">Hooks principales</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <code style="font-size:13px;flex-shrink:0">useState</code>
+                  <p class="body-sm">Para guardar y actualizar valores simples (contador, texto, booleano).</p>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <code style="font-size:13px;flex-shrink:0">useEffect</code>
+                  <p class="body-sm">Para efectos secundarios: fetch de datos, timers, subscripciones.</p>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <code style="font-size:13px;flex-shrink:0">useRef</code>
+                  <p class="body-sm">Referencia directa a un elemento del DOM o un valor que no re-renderiza.</p>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <code style="font-size:13px;flex-shrink:0">useContext</code>
+                  <p class="body-sm">Para compartir estado entre componentes sin pasar props en cada nivel.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1.1">
+            <div class="terminal">
+              <div class="term-bar">
+                <div class="term-btn t-red"></div>
+                <div class="term-btn t-yellow"></div>
+                <div class="term-btn t-green"></div>
+                <span class="term-title">Contador.jsx</span>
+              </div>
+              <div class="term-body">
+                <div><span class="t-keyword">import</span> { <span class="t-fn">useState</span> } <span class="t-keyword">from</span> <span class="t-string">'react'</span>;</div>
+                <div class="mt12"><span class="t-keyword">function</span> <span class="t-fn">Contador</span>() {</div>
+                <div>&nbsp;&nbsp;<span class="t-comment">// [valor, setter] = useState(valorInicial)</span></div>
+                <div>&nbsp;&nbsp;<span class="t-keyword">const</span> [<span class="t-prop">count</span>, <span class="t-prop">setCount</span>] = <span class="t-fn">useState</span>(<span class="t-string">0</span>);</div>
+                <div class="mt12">&nbsp;&nbsp;<span class="t-keyword">return</span> (</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;div&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;p&gt;</span>Clicks: {count}<span class="t-jsx">&lt;/p&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;button</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-prop">onClick</span>={() =&gt; <span class="t-fn">setCount</span>(count + <span class="t-string">1</span>)}</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sumar</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;/button&gt;</span></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;/div&gt;</span></div>
+                <div>&nbsp;&nbsp;);</div>
+                <div>}</div>
+                <div class="mt8"><span class="t-comment">// ⚠️ Nunca: count++ o count = count+1</span></div>
+                <div><span class="t-comment">// Siempre usa el setter: setCount(...)</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 7: BUENAS PRÁCTICAS ─ -->
+      <div class="slide slide-dark" id="s7">
+        <div class="eyebrow">Best practices</div>
+        <h2 class="h2">Buenas prácticas esenciales</h2>
+        <div class="grid2 mt28" style="gap:16px">
+          <div class="clay-card-dark">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <span style="font-size:20px">✂️</span>
+              <span style="font-size:15px;font-weight:600;color:#f5f5f7">Un componente = una tarea</span>
+            </div>
+            <p class="body-sm">Si un componente supera ~100 líneas o hace más de una cosa, divídelo. Más fácil de testear y reutilizar.</p>
+          </div>
+          <div class="clay-card-dark">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <span style="font-size:20px">📤</span>
+              <span style="font-size:15px;font-weight:600;color:#f5f5f7">Estado lo más local posible</span>
+            </div>
+            <p class="body-sm">El estado vive en el componente más cercano a quien lo necesita. No pongas todo en el componente raíz.</p>
+          </div>
+          <div class="clay-card-dark">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <span style="font-size:20px">🔑</span>
+              <span style="font-size:15px;font-weight:600;color:#f5f5f7">Keys únicas en listas</span>
+            </div>
+            <p class="body-sm">Al renderizar listas con <code style="background:rgba(255,255,255,.1);color:#7ee787">.map()</code>, siempre asigna una <code style="background:rgba(255,255,255,.1);color:#7ee787">key</code> única y estable. Nunca uses el índice del array.</p>
+          </div>
+          <div class="clay-card-dark">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <span style="font-size:20px">🎣</span>
+              <span style="font-size:15px;font-weight:600;color:#f5f5f7">Hooks solo al top level</span>
+            </div>
+            <p class="body-sm">Nunca pongas hooks dentro de condicionales o loops. Deben llamarse en el mismo orden en cada render.</p>
+          </div>
+          <div class="clay-card-dark">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <span style="font-size:20px">📁</span>
+              <span style="font-size:15px;font-weight:600;color:#f5f5f7">Estructura de archivos clara</span>
+            </div>
+            <p class="body-sm">Un archivo por componente. Nombres descriptivos. Agrupa por feature, no por tipo (<code style="background:rgba(255,255,255,.1);color:#7ee787">components/</code>, <code style="background:rgba(255,255,255,.1);color:#7ee787">hooks/</code>).</p>
+          </div>
+          <div class="clay-card-dark">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <span style="font-size:20px">🧠</span>
+              <span style="font-size:15px;font-weight:600;color:#f5f5f7">Componentes puros</span>
+            </div>
+            <p class="body-sm">Los mismos props deben producir el mismo JSX. Evita efectos secundarios en el render. Usa <code style="background:rgba(255,255,255,.1);color:#7ee787">useEffect</code> para ellos.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 8: CONCEPTOS CLAVE 4/4 FLUJO ─ -->
+      <div class="slide slide-blue" id="s8">
+        <div class="eyebrow">Conceptos clave · 4/4</div>
+        <h2 class="h2">Cómo piensa React</h2>
+        <div class="flex-row mt24" style="gap:36px;align-items:flex-start">
+          <div style="flex:1">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="clay-card-sm" style="display:flex;gap:16px;align-items:flex-start">
+                <div style="width:40px;height:40px;border-radius:50%;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);flex-shrink:0;font-size:18px">1</div>
+                <div>
+                  <div style="font-size:15px;font-weight:600;color:var(--gray-900)">Render inicial</div>
+                  <p class="body-sm mt8">React llama al componente, obtiene el JSX, y lo convierte al DOM real.</p>
+                </div>
+              </div>
+              <div class="clay-card-sm" style="display:flex;gap:16px;align-items:flex-start">
+                <div style="width:40px;height:40px;border-radius:50%;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);flex-shrink:0;font-size:18px">2</div>
+                <div>
+                  <div style="font-size:15px;font-weight:600;color:var(--gray-900)">Evento / cambio de estado</div>
+                  <p class="body-sm mt8">El usuario hace click, llega data nueva, cambia un prop. React se entera.</p>
+                </div>
+              </div>
+              <div class="clay-card-sm" style="display:flex;gap:16px;align-items:flex-start">
+                <div style="width:40px;height:40px;border-radius:50%;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);flex-shrink:0;font-size:18px">3</div>
+                <div>
+                  <div style="font-size:15px;font-weight:600;color:var(--gray-900)">Re-render + Reconciliación</div>
+                  <p class="body-sm mt8">React vuelve a llamar el componente, compara el nuevo Virtual DOM con el anterior (diffing), y actualiza <em>solo</em> lo que cambió.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div class="clay-card" style="padding:32px;text-align:center">
+              <div style="font-size:13px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px">El ciclo React</div>
+              <!-- simple diagram -->
+              <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+                <div style="background:#e8f0fe;border:2px solid var(--blue);border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;color:var(--blue)">Estado / Props</div>
+                <div style="font-size:20px;color:var(--blue);margin:4px">↓</div>
+                <div style="background:#f5f5f7;border:1.5px solid var(--gray-200);border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;color:var(--gray-900)">Render (tu función)</div>
+                <div style="font-size:20px;color:var(--blue);margin:4px">↓</div>
+                <div style="background:#f5f5f7;border:1.5px solid var(--gray-200);border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;color:var(--gray-900)">Virtual DOM</div>
+                <div style="font-size:20px;color:var(--blue);margin:4px">↓</div>
+                <div style="background:#e6f4ea;border:2px solid #137333;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;color:#137333">DOM Real → Pantalla</div>
+                <div style="font-size:20px;color:var(--gray-400);margin:4px">↑</div>
+                <div style="background:#fef3e2;border:1.5px solid #c5680d;border-radius:12px;padding:10px 20px;font-size:13px;font-weight:600;color:#c5680d">Evento del usuario</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 9: ECOSISTEMA ─ -->
+      <div class="slide" id="s9">
+        <div class="eyebrow">Ecosistema</div>
+        <h2 class="h2">El stack moderno de React</h2>
+        <div class="grid4 mt28" style="gap:12px">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);padding:0 4px">Framework</div>
+            <div class="clay-card-sm" style="padding:16px">
+              <div style="font-size:22px;margin-bottom:6px">▲</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-900)">Next.js</div>
+              <p class="body-sm" style="font-size:12px;margin-top:4px">El framework React más usado. SSR, SSG, App Router.</p>
+              <span class="badge badge-blue" style="margin-top:8px;font-size:11px">Recomendado</span>
+            </div>
+            <div class="clay-card-sm" style="padding:16px">
+              <div style="font-size:22px;margin-bottom:6px">⚡</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-900)">Vite</div>
+              <p class="body-sm" style="font-size:12px;margin-top:4px">Dev server ultra-rápido para proyectos SPA.</p>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);padding:0 4px">Estado global</div>
+            <div class="clay-card-sm" style="padding:16px">
+              <div style="font-size:22px;margin-bottom:6px">🐻</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-900)">Zustand</div>
+              <p class="body-sm" style="font-size:12px;margin-top:4px">Estado global simple. Alternativa moderna a Redux.</p>
+              <span class="badge badge-green" style="margin-top:8px;font-size:11px">Simple</span>
+            </div>
+            <div class="clay-card-sm" style="padding:16px">
+              <div style="font-size:22px;margin-bottom:6px">🔁</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-900)">TanStack Query</div>
+              <p class="body-sm" style="font-size:12px;margin-top:4px">Para fetch, cache y sync de datos del servidor.</p>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);padding:0 4px">Estilos</div>
+            <div class="clay-card-sm" style="padding:16px">
+              <div style="font-size:22px;margin-bottom:6px">🎨</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-900)">Tailwind CSS</div>
+              <p class="body-sm" style="font-size:12px;margin-top:4px">Utility-first CSS. El más popular con React hoy.</p>
+              <span class="badge badge-blue" style="margin-top:8px;font-size:11px">Recomendado</span>
+            </div>
+            <div class="clay-card-sm" style="padding:16px">
+              <div style="font-size:22px;margin-bottom:6px">🧱</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-900)">shadcn/ui</div>
+              <p class="body-sm" style="font-size:12px;margin-top:4px">Componentes de UI listos para copiar. Con Tailwind.</p>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);padding:0 4px">Herramientas</div>
+            <div class="clay-card-sm" style="padding:16px">
+              <div style="font-size:22px;margin-bottom:6px">🧪</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-900)">Vitest</div>
+              <p class="body-sm" style="font-size:12px;margin-top:4px">Testing unitario. Integra perfecto con Vite.</p>
+            </div>
+            <div class="clay-card-sm" style="padding:16px">
+              <div style="font-size:22px;margin-bottom:6px">🔍</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-900)">React DevTools</div>
+              <p class="body-sm" style="font-size:12px;margin-top:4px">Extensión del navegador para inspeccionar componentes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ SLIDE 10: TALLER ─ -->
+      <div class="slide slide-workshop" id="s10" style="padding:36px 56px">
+        <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none">
+          <div style="position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(88,166,255,.08),transparent 70%)"></div>
+          <div style="position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(78,201,176,.06),transparent 70%)"></div>
+        </div>
+        <div style="position:relative;display:flex;flex-direction:column;height:100%;overflow:hidden">
+          <!-- header -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <div style="background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.3);border-radius:8px;padding:4px 12px">
+              <span style="font-size:11px;font-weight:700;color:#58a6ff;text-transform:uppercase;letter-spacing:.08em">🛠️ Taller práctico</span>
+            </div>
+          </div>
+          <h2 class="h2" style="color:#e6edf3;font-size:36px;margin-bottom:2px">Mi primer componente React</h2>
+          <p style="font-size:14px;color:#8b949e;margin-bottom:14px">Construir una <strong style="color:#e6edf3">tarjeta de perfil</strong> desde cero — 30 minutos.</p>
+          <!-- body grid -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0">
+            <!-- steps -->
+            <div style="display:flex;flex-direction:column;gap:8px;overflow:hidden">
+              <div class="task-card" style="padding:12px 16px">
+                <div class="task-num">Paso 1 · Setup</div>
+                <div class="task-label" style="font-size:14px">Crear el proyecto</div>
+                <div class="task-desc" style="font-size:13px">Abre la terminal y ejecuta el comando con Vite + React.</div>
+              </div>
+              <div class="task-card" style="padding:12px 16px">
+                <div class="task-num">Paso 2 · Componente</div>
+                <div class="task-label" style="font-size:14px">Crear <code style="color:#79c0ff;font-size:12px">TarjetaPerfil.jsx</code></div>
+                <div class="task-desc" style="font-size:13px">Una función que retorna JSX con nombre, rol y descripción.</div>
+              </div>
+              <div class="task-card" style="padding:12px 16px">
+                <div class="task-num">Paso 3 · Props</div>
+                <div class="task-label" style="font-size:14px">Hacerlo reutilizable</div>
+                <div class="task-desc" style="font-size:13px">Pasa datos como props. Renderiza 3 tarjetas distintas en App.jsx.</div>
+              </div>
+              <div class="task-card" style="border-color:rgba(78,201,176,.3);background:rgba(78,201,176,.06);padding:12px 16px">
+                <div class="task-num" style="color:#3fb950">Paso 4 · Bonus</div>
+                <div class="task-label" style="font-size:14px;color:#e6edf3">Agregar estado</div>
+                <div class="task-desc" style="font-size:13px">Botón "Me gusta" con contador usando <code style="color:#79c0ff;font-size:12px">useState</code>.</div>
+              </div>
+            </div>
+            <!-- terminal -->
+            <div style="display:flex;flex-direction:column;min-height:0;overflow:hidden">
+              <div class="terminal" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+                <div class="term-bar" style="flex-shrink:0">
+                  <div class="term-btn t-red"></div>
+                  <div class="term-btn t-yellow"></div>
+                  <div class="term-btn t-green"></div>
+                  <span class="term-title">TarjetaPerfil.jsx</span>
+                </div>
+                <div class="term-body" style="overflow:hidden;padding:14px 18px;font-size:12px;line-height:1.65">
+                  <div><span class="t-comment"># 1. Crear el proyecto</span></div>
+                  <div><span class="t-prompt">$</span> <span class="t-cmd">npm create vite@latest mi-app</span></div>
+                  <div><span class="t-gray">&nbsp;&nbsp;✔ Framework: React · ✔ Variant: JS</span></div>
+                  <div><span class="t-prompt">$</span> <span class="t-cmd">cd mi-app && npm install && npm run dev</span></div>
+                  <div class="mt8"><span class="t-comment"># 2. TarjetaPerfil.jsx</span></div>
+                  <div><span class="t-keyword">import</span> { <span class="t-fn">useState</span> } <span class="t-keyword">from</span> <span class="t-string">'react'</span>;</div>
+                  <div class="mt8"><span class="t-keyword">function</span> <span class="t-fn">TarjetaPerfil</span>({ <span class="t-prop">nombre</span>, <span class="t-prop">rol</span> }) {</div>
+                  <div>&nbsp;&nbsp;<span class="t-keyword">const</span> [<span class="t-prop">likes</span>, <span class="t-prop">setLikes</span>] = <span class="t-fn">useState</span>(<span class="t-string">0</span>);</div>
+                  <div>&nbsp;&nbsp;<span class="t-keyword">return</span> (</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;div</span> <span class="t-prop">className</span>=<span class="t-string">"card"</span><span class="t-jsx">&gt;</span></div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;h2&gt;</span>{nombre}<span class="t-jsx">&lt;/h2&gt;</span></div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;p&gt;</span>{rol}<span class="t-jsx">&lt;/p&gt;</span></div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;button</span> <span class="t-prop">onClick</span>={() =&gt; <span class="t-fn">setLikes</span>(l =&gt; l+<span class="t-string">1</span>)}<span class="t-jsx">&gt;</span>❤️ {likes}<span class="t-jsx">&lt;/button&gt;</span></div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-jsx">&lt;/div&gt;</span></div>
+                  <div>&nbsp;&nbsp;);</div>
+                  <div>}&nbsp;<span class="term-cursor"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /slide-area -->
+  </div><!-- /pres-window -->
+</div><!-- /pres-wrapper -->
+
+<!-- nav -->
+<div id="nav" style="display:none">
+  <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled>←</button>
+  <div id="dots"></div>
+  <button class="nav-btn" id="nextBtn" onclick="navigate(1)">→</button>
+</div>
+<div id="counter" style="display:none"></div>
+
+<script>
+  // ── CLOCK ──
+  function updateClock(){
+    const n=new Date();
+    document.getElementById('clock').textContent=
+      n.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+  }
+  updateClock();setInterval(updateClock,1000);
+
+  // ── SLIDES ──
+  const TOTAL=11;
+  let current=0;
+
+  function buildDots(){
+    const c=document.getElementById('dots');
+    c.innerHTML='';
+    for(let i=0;i<TOTAL;i++){
+      const d=document.createElement('div');
+      d.className='dot'+(i===current?' active':'');
+      d.onclick=()=>goTo(i);
+      c.appendChild(d);
+    }
+  }
+
+  function goTo(n){
+    if(n<0||n>=TOTAL)return;
+    const slides=document.querySelectorAll('.slide');
+    const prev=slides[current];
+    const next=slides[n];
+    prev.classList.add('exit-left');
+    prev.classList.remove('active');
+    setTimeout(()=>prev.classList.remove('exit-left'),380);
+    if(n>current){
+      next.style.transform='translateX(60px)';
+    } else {
+      next.style.transform='translateX(-60px)';
+    }
+    next.offsetHeight;
+    next.classList.add('active');
+    setTimeout(()=>next.style.transform='',20);
+    current=n;
+    document.getElementById('prevBtn').disabled=current===0;
+    document.getElementById('nextBtn').disabled=current===TOTAL-1;
+    document.getElementById('counter').textContent=(current+1)+' / '+TOTAL;
+    buildDots();
+  }
+
+  function navigate(dir){goTo(current+dir);}
+
+  // ── OPEN / CLOSE ──
+  function openPresentation(){
+    const desk=document.getElementById('desktop');
+    const win=document.getElementById('pres-window');
+    const nav=document.getElementById('nav');
+    const ctr=document.getElementById('counter');
+
+    desk.classList.add('closing');
+    setTimeout(()=>{desk.style.display='none';},600);
+
+    setTimeout(()=>{
+      win.classList.add('open');
+      nav.style.display='flex';
+      ctr.style.display='block';
+      buildDots();
+    },300);
+  }
+
+  function closePresentation(){
+    const desk=document.getElementById('desktop');
+    const win=document.getElementById('pres-window');
+    const nav=document.getElementById('nav');
+    const ctr=document.getElementById('counter');
+
+    win.classList.remove('open');
+    nav.style.display='none';
+    ctr.style.display='none';
+
+    setTimeout(()=>{
+      desk.style.display='flex';
+      desk.classList.remove('closing');
+    },400);
+  }
+
+  // keyboard nav
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='ArrowDown')navigate(1);
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp')navigate(-1);
+    if(e.key==='Escape')closePresentation();
+  });
+</script>
+</body>
+</html>
